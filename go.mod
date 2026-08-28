@@ -4,5 +4,5 @@ go 1.26
 
 require (
 	github.com/go-chi/chi/v5 v5.3.1
-	github.com/xd-dash/logma v0.0.0-20260828231022-4facc7f8b585
+	github.com/xd-dash/logma v0.0.0-20260828232104-b69694c01eae
 )
