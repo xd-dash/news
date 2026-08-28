@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/xd-dash/logma-serverless/pubsub"
-	baserouter "github.com/xd-dash/logma-serverless/router"
+	"github.com/xd-dash/logma/serverless/pubsub"
+	baserouter "github.com/xd-dash/logma/serverless/router"
 )
 
 // NewRouter returns the HTTP shell expected by the existing gospace/simple-router
