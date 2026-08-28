@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/xd-dash/logma-serverless/pubsub"
+	"github.com/xd-dash/logma/serverless/pubsub"
 	"github.com/xd-dash/news/internal/feed"
 )
 
