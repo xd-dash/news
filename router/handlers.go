@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/xd-dash/logma-serverless/pubsub"
+	"github.com/xd-dash/logma/serverless/pubsub"
 )
 
 func streamHandler(holder *pubsub.Holder[*NewsRuntime]) http.HandlerFunc {
