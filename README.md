@@ -116,6 +116,8 @@ close Redis exactly once
 
 Transient source errors are logged and retried on the next polling interval rather than killing the whole multi-feed session.
 
+News currently selects Logma's package-owned `sandbox_bounded` lifecycle preset in code. The HTTP request cannot choose or override the concrete limits. The preset combines a Redis-owned shutdown timer with a total-publish cap; whichever condition is reached first emits the runtime shutdown signal. This is intentionally a sandbox policy and can later be replaced by deployment-selected/licensed presets without changing the stream request schema.
+
 ## Configuration
 
 Redis configuration follows `logma-serverless` conventions:
