@@ -32,10 +32,22 @@ func NewNewsRuntime() *NewsRuntime {
 func (rt *NewsRuntime) Configure(cfg streamConfig) {
 	rt.cfg = cfg
 	rt.Runtime.ConfigureDefaultWithLifecycle(
-		pubsub.LifecycleSandboxBounded,
+		deploymentLifecyclePolicy(),
 		rt.streamFeeds,
 		nil,
 	)
+}
+
+func deploymentLifecyclePolicy() pubsub.LifecyclePolicy {
+	switch os.Getenv("NEWS_LIFECYCLE_POLICY") {
+	case "", string(pubsub.LifecycleSandboxBounded):
+		return pubsub.LifecycleSandboxBounded
+	case string(pubsub.LifecycleSandboxNews20M):
+		return pubsub.LifecycleSandboxNews20M
+	default:
+		log.Printf("news: unknown NEWS_LIFECYCLE_POLICY; using sandbox_bounded")
+		return pubsub.LifecycleSandboxBounded
+	}
 }
 
 // Close releases the session-owned Redis client. It is idempotent so every
