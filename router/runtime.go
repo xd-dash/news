@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"errors"
 	"log"
 	"os"
 	"sync"
@@ -30,7 +31,11 @@ func NewNewsRuntime() *NewsRuntime {
 
 func (rt *NewsRuntime) Configure(cfg streamConfig) {
 	rt.cfg = cfg
-	rt.Runtime.ConfigureDefault(rt.streamFeeds, nil)
+	rt.Runtime.ConfigureDefaultWithLifecycle(
+		pubsub.LifecycleSandboxBounded,
+		rt.streamFeeds,
+		nil,
+	)
 }
 
 // Close releases the session-owned Redis client. It is idempotent so every
@@ -88,7 +93,13 @@ func (rt *NewsRuntime) pollFeed(ctx context.Context, cfg feedConfig) {
 				continue
 			}
 			if err := rt.Runtime.Publish(rt.publishChannel(cfg.name), item); err != nil {
+				if errors.Is(err, pubsub.ErrLifecyclePublishLimit) || ctx.Err() != nil {
+					return
+				}
 				log.Printf("news: %v", err)
+			}
+			if ctx.Err() != nil {
+				return
 			}
 		}
 		firstSuccessfulFetch = false
