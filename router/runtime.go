@@ -38,15 +38,15 @@ func (rt *NewsRuntime) Configure(cfg streamConfig) {
 	)
 }
 
-func deploymentLifecyclePolicy() pubsub.LifecyclePolicy {
+func deploymentLifecyclePolicy() pubsub.Policy {
 	switch os.Getenv("NEWS_LIFECYCLE_POLICY") {
-	case "", string(pubsub.LifecycleSandboxBounded):
-		return pubsub.LifecycleSandboxBounded
-	case string(pubsub.LifecycleSandboxNews20M):
-		return pubsub.LifecycleSandboxNews20M
+	case "", string(pubsub.Policy30S64Publishes):
+		return pubsub.Policy30S64Publishes
+	case string(pubsub.Policy20M):
+		return pubsub.Policy20M
 	default:
-		log.Printf("news: unknown NEWS_LIFECYCLE_POLICY; using sandbox_bounded")
-		return pubsub.LifecycleSandboxBounded
+		log.Printf("news: unknown NEWS_LIFECYCLE_POLICY; using 30s-64-publishes")
+		return pubsub.Policy30S64Publishes
 	}
 }
 
