@@ -42,6 +42,8 @@ func deploymentLifecyclePolicy() pubsub.Policy {
 	switch os.Getenv("NEWS_LIFECYCLE_POLICY") {
 	case "", string(pubsub.Policy30S64Publishes):
 		return pubsub.Policy30S64Publishes
+	case string(pubsub.Policy5M):
+		return pubsub.Policy5M
 	case string(pubsub.Policy20M):
 		return pubsub.Policy20M
 	default:
