@@ -46,6 +46,10 @@ func (rt *NewsRuntime) Configure(cfg streamConfig) {
 
 func deploymentLifecyclePolicy() pubsub.Policy {
 	switch os.Getenv("NEWS_LIFECYCLE_POLICY") {
+	case string(pubsub.Policy3S):
+		return pubsub.Policy3S
+	case string(pubsub.Policy3Publishes):
+		return pubsub.Policy3Publishes
 	case "", string(pubsub.Policy30S64Publishes):
 		return pubsub.Policy30S64Publishes
 	case string(pubsub.Policy5M):
@@ -70,6 +74,9 @@ func (rt *NewsRuntime) Close() {
 				log.Printf("news: close axiom observer: %v", err)
 			}
 			cancel()
+			if sent, failed, dropped := rt.axiomObserver.Sent(), rt.axiomObserver.Failed(), rt.axiomObserver.Dropped(); sent > 0 || failed > 0 || dropped > 0 {
+				log.Printf("news: axiom observer sent=%d failed=%d dropped=%d", sent, failed, dropped)
+			}
 		}
 		if rt.Client == nil {
 			return
