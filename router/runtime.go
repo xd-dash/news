@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/xd-dash/logma/serverless/callbacks/axiom"
 	"github.com/xd-dash/logma/serverless/pubsub"
 	"github.com/xd-dash/news/internal/feed"
 )
@@ -18,14 +19,19 @@ type NewsRuntime struct {
 	cfg            streamConfig
 	feedClient     *feed.Client
 	globalChannels bool
+	axiomObserver  *axiom.Observer
 	closeOnce      sync.Once
 }
 
 func NewNewsRuntime() *NewsRuntime {
+	observer := axiom.FromEnv()
+	runtime := pubsub.NewRuntimeFromEnv()
+	runtime.SetObserver(observer)
 	return &NewsRuntime{
-		Runtime:        pubsub.NewRuntimeFromEnv(),
+		Runtime:        runtime,
 		feedClient:     feed.NewClient(),
 		globalChannels: os.Getenv("NEWS_GLOBAL_CHANNELS") == "true",
+		axiomObserver:  observer,
 	}
 }
 
@@ -52,10 +58,19 @@ func deploymentLifecyclePolicy() pubsub.Policy {
 	}
 }
 
-// Close releases the session-owned Redis client. It is idempotent so every
-// handler exit path can defer it immediately after a successful Claim.
+// Close releases the optional observer and session-owned Redis client. It is
+// idempotent so every handler exit path can defer it immediately after a
+// successful Claim. Axiom remains best-effort and never changes data-plane
+// success or lifecycle authority.
 func (rt *NewsRuntime) Close() {
 	rt.closeOnce.Do(func() {
+		if rt.axiomObserver != nil {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			if err := rt.axiomObserver.Close(ctx); err != nil {
+				log.Printf("news: close axiom observer: %v", err)
+			}
+			cancel()
+		}
 		if rt.Client == nil {
 			return
 		}
