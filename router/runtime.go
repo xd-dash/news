@@ -50,6 +50,8 @@ func deploymentLifecyclePolicy() pubsub.Policy {
 		return pubsub.Policy3S
 	case string(pubsub.Policy3Publishes):
 		return pubsub.Policy3Publishes
+	case string(pubsub.Policy30S):
+		return pubsub.Policy30S
 	case "", string(pubsub.Policy30S64Publishes):
 		return pubsub.Policy30S64Publishes
 	case string(pubsub.Policy5M):
